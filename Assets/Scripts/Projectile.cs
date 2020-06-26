@@ -1,15 +1,17 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Projectile : MonoBehaviour
 {
-    [SerializeField] float speed = 200f;
+    [Header("Fire")]
     [SerializeField] bool shootForward;
+    [SerializeField] float speed = 2f;
 
     [Header("Rotation")]
-    [SerializeField] float rotationSpeed = 30f;
     [SerializeField] Transform rotationCenter;
+    [SerializeField] float angularSpeed, rotationRadius;
+    private Vector3 direction;
+    private float posX, posY, angle = 0;
 
     private void Update()
     {
@@ -17,12 +19,29 @@ public class Projectile : MonoBehaviour
         {
             shootForward = true;
         }
-
+        
         if (shootForward)
-            transform.position += transform.TransformDirection(transform.right) * speed * Time.deltaTime;
+            transform.position += direction * speed * Time.deltaTime;
+        else
+        {
+            posX = rotationCenter.position.x + Mathf.Cos(angle) * rotationRadius;
+            posY = rotationCenter.position.y + Mathf.Sin(angle) * rotationRadius;
+            transform.position = new Vector2(posX, posY);
+            angle = angle + Time.deltaTime * angularSpeed;
 
-        if (!shootForward)
-            transform.RotateAround(rotationCenter.position, Vector3.forward, rotationSpeed * Time.deltaTime);
+            direction = new Vector2(posX, posY);
+        }
+
+        Debug.DrawRay(transform.position, new Vector2(posX, posY), Color.red);
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.transform.name == "Object")
+            collision.gameObject.SetActive(false);
+
+        if(collision.transform.name == "Border")
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
 }

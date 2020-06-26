@@ -4,22 +4,25 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
-    private Rigidbody2D rb;
-    [SerializeField] float speed = 2f;
-    
+    [SerializeField] float speed = 200f;
+    [SerializeField] bool shootForward;
 
-    void Start()
-    {
-        rb = GetComponent<Rigidbody2D>();
-    }
+    [Header("Rotation")]
+    [SerializeField] float rotationSpeed = 30f;
+    [SerializeField] Transform rotationCenter;
 
-   
-    void FixedUpdate()
+    private void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
-             rb.AddForce(transform.forward * speed);
+            shootForward = true;
         }
+
+        if (shootForward)
+            transform.position += transform.TransformDirection(transform.right) * speed * Time.deltaTime;
+
+        if (!shootForward)
+            transform.RotateAround(rotationCenter.position, Vector3.forward, rotationSpeed * Time.deltaTime);
     }
 
 }
